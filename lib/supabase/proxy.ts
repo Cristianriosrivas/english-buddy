@@ -4,7 +4,7 @@ import { hasEnvVars } from "../utils";
 
 // Rutas sin sesión: login, confirmación de correo y los archivos de la PWA
 // (service worker, manifest y página sin conexión)
-const PUBLIC_PATHS = ["/login", "/auth", "/serwist", "/~offline", "/manifest.webmanifest"];
+const PUBLIC_PATHS = ["/login", "/auth", "/serwist", "/~offline", "/manifest.webmanifest", "/audio"];
 
 const isPublicPath = (path: string) => PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 

@@ -40,6 +40,8 @@ export type TutorContext = {
   explanationLang?: string | null;
   /** Descripción de la conversación (tema guiado, juego de rol, libre...) */
   scenario?: string;
+  /** Llamada en vivo: la respuesta se lee en voz alta */
+  voice?: boolean;
 };
 
 export function buildTutorSystemPrompt(ctx: TutorContext): string {
@@ -57,7 +59,11 @@ STYLE
 - Keep each reply short: 2 to 4 sentences. Always end with exactly ONE question that keeps the conversation going.
 - ${LEVEL_GUIDE[ctx.level]}
 - Write the reply in English only. If the learner writes in Spanish, answer in simple English and encourage them to try saying it in English.
-- At most one emoji per reply.
+${
+  ctx.voice
+    ? "- This is a live VOICE call: your reply is read aloud by text-to-speech. Use 1 to 3 short, natural spoken sentences. No emojis, no lists, no markdown, no parentheses. The learner's words come from speech recognition, so ignore punctuation and capitalization."
+    : "- At most one emoji per reply."
+}
 
 CORRECTIONS
 - Look ONLY at the learner's last message and find real mistakes: grammar, vocabulary or word choice, spelling, word order.

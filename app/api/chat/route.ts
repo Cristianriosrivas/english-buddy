@@ -33,6 +33,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const conversationId = typeof body?.conversationId === "string" ? body.conversationId : "";
   const text = typeof body?.message === "string" ? body.message.trim() : "";
+  const voice = body?.voice === true; // llamada en vivo: respuestas cortas para leer en voz alta
   if (!conversationId || !text) return fail("Escribe un mensaje.", 400);
   if (text.length > MAX_MESSAGE_CHARS) {
     return fail(`Tu mensaje es muy largo (máximo ${MAX_MESSAGE_CHARS} caracteres).`, 400);
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
           learnerName: profileRes.data?.name,
           explanationLang: profileRes.data?.explanation_lang,
           scenario: topicScenarioOf(conversation),
+          voice,
         }),
         messages: [...history, { role: "user", content: text }],
         schema: TUTOR_REPLY_SCHEMA,

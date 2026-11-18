@@ -38,7 +38,10 @@ Agente de IA para practicar inglés hablando y escribiendo. Hecho con Next.js (A
 
 6. Abre <http://localhost:3000>.
 
-> **Voz:** en PC (Chrome o Edge) el dictado usa el reconocimiento de voz del navegador, con el texto en vivo. En celulares (sobre todo iPhone, donde ese dictado pide permiso cada vez y falla después del primer uso) y en navegadores sin dictado, la app graba el audio y lo transcribe en el servidor con **Whisper de Groq** (`/api/transcribe`, usa la misma `GROQ_API_KEY`): el permiso se pide una vez y el micrófono se reutiliza mientras estás en el chat. Escuchar las respuestas funciona en todos los navegadores modernos, con las voces en inglés instaladas en el dispositivo.
+> **Voz (todo gratis):**
+> - **Llamada en vivo** (botón *Llamar* en el chat): hablas, la app detecta cuándo terminas (pausa de ~1 s), transcribe con **Whisper de Groq** (`/api/transcribe`), Emma responde con Groq y te habla con la voz del dispositivo; luego vuelve a escucharte sola. Subtítulos y correcciones en pantalla; todo queda guardado en el chat. El micrófono se pide una vez por llamada.
+> - **Dictado** (botón del micrófono): en PC usa el reconocimiento de voz del navegador (texto en vivo); en celulares graba y transcribe con Whisper.
+> - El audio se captura con un AudioWorklet (`public/audio/capture-processor.js`) y se envía como WAV 16 kHz, el formato que Whisper acepta siempre (el mp4 que graba el iPhone era rechazado). Escuchar las respuestas funciona en todos los navegadores modernos, con las voces en inglés instaladas en el dispositivo.
 
 ## App instalable (PWA)
 

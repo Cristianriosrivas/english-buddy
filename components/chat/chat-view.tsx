@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Languages, Loader2, Mic, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Languages, Loader2, Mic, Phone, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
 import { MAX_MESSAGE_CHARS, TUTOR_NAME, type ChatRow } from "@/lib/chat";
 import { useAutoRead, useSpeechSynthesis, useVoiceInput } from "@/lib/speech";
 import { speechRateFor } from "@/lib/levels";
+import { useLiveCall, type LiveTurnResult } from "@/lib/live-call";
 import { CorrectionCard } from "@/components/chat/correction-card";
+import { LiveCallOverlay } from "@/components/chat/live-call-overlay";
 import { cn } from "@/lib/utils";
 
 /** Agrega el texto dictado a lo que ya estaba escrito */
@@ -78,6 +80,38 @@ export function ChatView({
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages.length, sending, translatingId]);
 
+  /** Envía un mensaje a la agente y agrega ambos mensajes al chat (lo usan el texto y la llamada) */
+  async function requestReply(
+    text: string,
+    voice: boolean,
+  ): Promise<{ reply?: ChatRow; mine?: ChatRow; error?: string; limitReached?: boolean }> {
+    const tempId = `temp-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: tempId, role: "user", content: text, corrections: [], translation: null, created_at: new Date().toISOString() },
+    ]);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, message: text, voice }),
+      });
+      const data = await res.json().catch(() => ({ error: "Tu sesión expiró. Vuelve a iniciar sesión." }));
+      if (!res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        if (data.limitReached) setRemaining(0);
+        return { error: data.error ?? "Ocurrió un error. Inténtalo de nuevo.", limitReached: Boolean(data.limitReached) };
+      }
+      const saved = data.messages as ChatRow[];
+      setMessages((prev) => [...prev.filter((m) => m.id !== tempId), ...saved]);
+      setRemaining(data.remaining);
+      return { reply: saved.findLast((m) => m.role === "assistant"), mine: saved.find((m) => m.role === "user") };
+    } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      return { error: "No hay conexión. Revisa tu internet e inténtalo de nuevo." };
+    }
+  }
+
   async function send() {
     const text = input.trim();
     if (!text || sending || limitReached) return;
@@ -88,39 +122,45 @@ export function ChatView({
     setSending(true);
     setError(null);
     setInput("");
-    const tempId = `temp-${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      { id: tempId, role: "user", content: text, corrections: [], translation: null, created_at: new Date().toISOString() },
-    ]);
-
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId, message: text }),
-      });
-      const data = await res.json().catch(() => ({ error: "Tu sesión expiró. Vuelve a iniciar sesión." }));
-      if (!res.ok) {
-        setMessages((prev) => prev.filter((m) => m.id !== tempId));
-        setInput(text);
-        if (data.limitReached) setRemaining(0);
-        setError(data.error ?? "Ocurrió un error. Inténtalo de nuevo.");
-        return;
-      }
-      const saved = data.messages as ChatRow[];
-      setMessages((prev) => [...prev.filter((m) => m.id !== tempId), ...saved]);
-      setRemaining(data.remaining);
-      const reply = saved.findLast((m) => m.role === "assistant");
-      if (autoRead && reply) tts.speak(reply.content, reply.id);
-    } catch {
-      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+    const result = await requestReply(text, false);
+    if (result.error) {
       setInput(text);
-      setError("No hay conexión. Revisa tu internet e inténtalo de nuevo.");
-    } finally {
-      setSending(false);
-      inputRef.current?.focus();
+      setError(result.error);
+    } else if (autoRead && result.reply) {
+      tts.speak(result.reply.content, result.reply.id);
     }
+    setSending(false);
+    inputRef.current?.focus();
+  }
+
+  // --- Llamada en vivo ---
+  const [callOpen, setCallOpen] = useState(false);
+  const live = useLiveCall({
+    rate: speechRateFor(level),
+    onUserText: async (text): Promise<LiveTurnResult> => {
+      setSending(true);
+      const result = await requestReply(text, true);
+      setSending(false);
+      return {
+        reply: result.reply?.content,
+        corrections: result.mine?.corrections ?? [],
+        error: result.error,
+        stop: result.limitReached,
+      };
+    },
+  });
+
+  function startCall() {
+    tts.stop();
+    mic.cancel();
+    setError(null);
+    setCallOpen(true);
+    void live.start(); // dentro del toque: iOS lo exige para el micrófono y la voz
+  }
+
+  function hangUp() {
+    live.end();
+    setCallOpen(false);
   }
 
   async function translate(messageId: string) {
@@ -191,7 +231,20 @@ export function ChatView({
             {autoRead ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
           </button>
         )}
+        <button
+          type="button"
+          onClick={startCall}
+          disabled={limitReached}
+          title={`Hablar en vivo con ${TUTOR_NAME}`}
+          aria-label={`Llamar a ${TUTOR_NAME}: conversación por voz en vivo`}
+          className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-3 text-sm font-medium text-white shadow-lg shadow-emerald-500/30 transition-transform hover:scale-105 active:scale-95 disabled:opacity-40"
+        >
+          <Phone className="h-4 w-4" />
+          <span className="hidden sm:inline">Llamar</span>
+        </button>
       </header>
+
+      {callOpen && <LiveCallOverlay live={live} level={level} onHangUp={hangUp} />}
 
       <div role="log" aria-live="polite" className="glass flex-1 space-y-4 overflow-y-auto rounded-2xl p-3 sm:p-4">
         {messages.map((message) => (

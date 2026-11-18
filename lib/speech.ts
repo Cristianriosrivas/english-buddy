@@ -222,6 +222,65 @@ export function useSpeechSynthesis({ lang = "en-US", rate = 1 }: { lang?: string
   return { supported, speakingId, speak, stop };
 }
 
+// --- Voz para la llamada en vivo ------------------------------------------------
+
+let liveUtterance: SpeechSynthesisUtterance | null = null;
+
+/** iOS solo deja hablar si la primera frase sale de un toque: se "desbloquea" al iniciar la llamada */
+export function unlockSpeechSynthesis() {
+  if (!("speechSynthesis" in window)) return;
+  const silent = new SpeechSynthesisUtterance(" ");
+  silent.volume = 0;
+  window.speechSynthesis.speak(silent);
+}
+
+/** Lee un texto en voz alta; `done` se cumple al terminar (o si se cancela) */
+export function speakOnce(text: string, { lang = "en-US", rate = 1 }: { lang?: string; rate?: number } = {}) {
+  let finished = false;
+  const fallback: { timer?: ReturnType<typeof setTimeout> } = {};
+  let resolveDone: () => void = () => {};
+  const done = new Promise<void>((resolve) => {
+    resolveDone = resolve;
+  });
+  let utterance: SpeechSynthesisUtterance | null = null;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(fallback.timer);
+    if (liveUtterance === utterance) liveUtterance = null;
+    resolveDone();
+  };
+
+  const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
+  const clean = text.replace(EMOJI, "").replace(/\s+/g, " ").trim();
+  if (!synth || !clean) {
+    finish();
+    return { done, cancel: finish };
+  }
+
+  utterance = new SpeechSynthesisUtterance(clean);
+  utterance.lang = lang;
+  utterance.rate = rate;
+  const voice = pickVoice(synth.getVoices(), lang);
+  if (voice) utterance.voice = voice;
+  utterance.onend = finish;
+  utterance.onerror = finish;
+  liveUtterance = utterance; // que el navegador no la descarte antes de terminar
+  synth.cancel();
+  synth.speak(utterance);
+  // Respaldo: algunos iPhone no avisan cuando termina de hablar
+  const words = clean.split(" ").length;
+  fallback.timer = setTimeout(finish, ((words * 0.5) / rate + 3) * 1000);
+
+  return {
+    done,
+    cancel: () => {
+      synth.cancel();
+      finish();
+    },
+  };
+}
+
 // --- Preferencia de lectura automática (guardada en este navegador) -----------
 
 const AUTO_READ_KEY = "eb:auto-read";
