@@ -2,20 +2,24 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { hasEnvVars } from "../utils";
 
-// Rutas que se pueden ver sin iniciar sesión
 // Rutas sin sesión: login, confirmación de correo y los archivos de la PWA
 // (service worker, manifest y página sin conexión)
 const PUBLIC_PATHS = ["/login", "/auth", "/serwist", "/~offline", "/manifest.webmanifest"];
+
+const isPublicPath = (path: string) => PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  // If the env vars are not set, skip proxy check. You can remove this
-  // once you setup the project.
+  // Sin las variables de Supabase la app no puede funcionar: se lleva a /login,
+  // que muestra el aviso de configuración pendiente (en vez de un error del servidor)
   if (!hasEnvVars) {
-    return supabaseResponse;
+    if (isPublicPath(request.nextUrl.pathname)) return supabaseResponse;
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
   // With Fluid compute, don't put this client in a global environment
@@ -53,9 +57,8 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
 
-  if (!user && !isPublic) {
+  if (!user && !isPublicPath(path)) {
     // Sin sesión: mandar al login
     const url = request.nextUrl.clone();
     url.pathname = "/login";
