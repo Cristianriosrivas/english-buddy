@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Languages, Mic, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Languages, Loader2, Mic, SendHorizontal, Square, Volume2, VolumeX } from "lucide-react";
 import { MAX_MESSAGE_CHARS, TUTOR_NAME, type ChatRow } from "@/lib/chat";
-import { useAutoRead, useSpeechRecognition, useSpeechSynthesis } from "@/lib/speech";
+import { useAutoRead, useSpeechSynthesis, useVoiceInput } from "@/lib/speech";
 import { speechRateFor } from "@/lib/levels";
 import { CorrectionCard } from "@/components/chat/correction-card";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,8 @@ export function ChatView({
 
   const tts = useSpeechSynthesis({ rate: speechRateFor(level) });
   const [autoRead, setAutoRead] = useAutoRead();
-  const mic = useSpeechRecognition({
+  // PC: dictado en vivo · celular: grabar y transcribir (permiso una sola vez)
+  const mic = useVoiceInput({
     onText: (spoken) => setInput(appendText(dictationBaseRef.current, spoken)),
   });
 
@@ -218,7 +219,13 @@ export function ChatView({
       {mic.listening && (
         <p aria-live="polite" className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
           <VoiceWave hearing={mic.hearing} />
-          Escuchando en inglés… toca <Square className="inline h-2.5 w-2.5 fill-current" /> para terminar
+          {mic.mode === "record" ? "Grabando… habla en inglés y" : "Escuchando en inglés…"} toca{" "}
+          <Square className="inline h-2.5 w-2.5 fill-current" /> para terminar
+        </p>
+      )}
+      {mic.transcribing && (
+        <p aria-live="polite" className="mt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Convirtiendo tu audio en texto…
         </p>
       )}
 
@@ -232,7 +239,7 @@ export function ChatView({
         <button
           type="button"
           onClick={toggleMic}
-          disabled={sending || limitReached}
+          disabled={sending || limitReached || mic.transcribing}
           aria-pressed={mic.listening}
           aria-label={mic.listening ? "Terminar de dictar" : "Hablar en inglés"}
           title={mic.listening ? "Terminar de dictar" : "Hablar en inglés"}
@@ -244,7 +251,13 @@ export function ChatView({
           )}
         >
           {mic.listening && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-red-500/40" />}
-          {mic.listening ? <Square className="relative h-4 w-4 fill-current" /> : <Mic className="h-5 w-5" />}
+          {mic.transcribing ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : mic.listening ? (
+            <Square className="relative h-4 w-4 fill-current" />
+          ) : (
+            <Mic className="h-5 w-5" />
+          )}
         </button>
         <label className="glass flex min-h-11 flex-1 items-center rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-ring">
           <span className="sr-only">Tu mensaje</span>
@@ -273,7 +286,7 @@ export function ChatView({
         <button
           type="submit"
           aria-label="Enviar"
-          disabled={!input.trim() || sending || limitReached}
+          disabled={!input.trim() || sending || limitReached || mic.transcribing}
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-40 disabled:shadow-none"
         >
           <SendHorizontal className="h-5 w-5" />

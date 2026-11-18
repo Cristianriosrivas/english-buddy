@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useAudioRecorder } from "@/lib/recorder";
 
 /*
  * Voz con la Web Speech API del navegador (gratis, sin servidor):
@@ -115,6 +116,34 @@ export function useSpeechRecognition({ lang = "en-US", onText }: { lang?: string
   const clearError = useCallback(() => setError(null), []);
 
   return { supported, listening, hearing, error, start, stop, cancel, clearError };
+}
+
+// --- Entrada de voz según el dispositivo --------------------------------------
+
+/** Celulares y tablets (incluye iPad, que se presenta como Mac) */
+function isMobileDevice() {
+  return (
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
+/**
+ * Micrófono para el chat. En PC (Chrome/Edge) usa el dictado del navegador, con texto
+ * en vivo. En celulares, o si el navegador no tiene dictado, graba el audio y lo
+ * transcribe en el servidor con Whisper: pide permiso una vez y funciona en iPhone.
+ */
+export function useVoiceInput({ onText }: { onText: (text: string) => void }) {
+  const useRecorder = useSyncExternalStore(
+    noopSubscribe,
+    () => isMobileDevice() || !getRecognitionCtor(),
+    () => false,
+  );
+  const live = useSpeechRecognition({ onText });
+  const recorder = useAudioRecorder({ onText });
+  return useRecorder
+    ? { ...recorder, mode: "record" as const }
+    : { ...live, transcribing: false, mode: "live" as const };
 }
 
 // --- Lectura en voz alta ------------------------------------------------------

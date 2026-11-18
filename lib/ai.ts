@@ -175,6 +175,41 @@ function stripCodeFence(text: string) {
 }
 
 /** Mensaje en español para mostrar cuando la IA falla. */
+/**
+ * Voz a texto con Whisper en Groq (gratis). Se usa en celulares, donde el dictado
+ * del navegador falla (sobre todo en iPhone).
+ */
+export async function transcribeAudio(audio: Blob, filename: string, language = "en"): Promise<string> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) throw new AIError("No GROQ_API_KEY for transcription", 500, false);
+
+  const form = new FormData();
+  form.append("file", audio, filename);
+  form.append("model", process.env.GROQ_TRANSCRIBE_MODEL || "whisper-large-v3-turbo");
+  form.append("language", language);
+  form.append("response_format", "json");
+  form.append("temperature", "0");
+
+  let res: Response;
+  try {
+    res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: form,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+      cache: "no-store",
+    });
+  } catch (error) {
+    throw new AIError(`Network error: ${String(error)}`, 504, true);
+  }
+  if (!res.ok) {
+    const detail = (await res.text()).slice(0, 300);
+    throw new AIError(`Transcription HTTP ${res.status}: ${detail}`, res.status, res.status === 429 || res.status >= 500);
+  }
+  const data = await res.json();
+  return typeof data?.text === "string" ? data.text.trim() : "";
+}
+
 export function aiErrorMessage(error: unknown): string {
   if (error instanceof AIError) {
     if (error.status === 429) return "La IA está muy ocupada en este momento. Espera un minuto y vuelve a intentarlo.";

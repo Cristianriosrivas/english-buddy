@@ -38,7 +38,7 @@ Agente de IA para practicar inglés hablando y escribiendo. Hecho con Next.js (A
 
 6. Abre <http://localhost:3000>.
 
-> **Voz:** el dictado usa el reconocimiento de voz del navegador y funciona mejor en **Chrome o Edge** (Firefox no lo trae). La primera vez el navegador pide permiso para usar el micrófono. Escuchar las respuestas funciona en todos los navegadores modernos, con las voces en inglés instaladas en el dispositivo.
+> **Voz:** en PC (Chrome o Edge) el dictado usa el reconocimiento de voz del navegador, con el texto en vivo. En celulares (sobre todo iPhone, donde ese dictado pide permiso cada vez y falla después del primer uso) y en navegadores sin dictado, la app graba el audio y lo transcribe en el servidor con **Whisper de Groq** (`/api/transcribe`, usa la misma `GROQ_API_KEY`): el permiso se pide una vez y el micrófono se reutiliza mientras estás en el chat. Escuchar las respuestas funciona en todos los navegadores modernos, con las voces en inglés instaladas en el dispositivo.
 
 ## App instalable (PWA)
 
