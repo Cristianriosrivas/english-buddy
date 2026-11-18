@@ -1,110 +1,91 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# English Buddy
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Agente de IA para practicar inglés hablando y escribiendo. Hecho con Next.js (App Router), TypeScript, Tailwind CSS y Supabase, usando solo servicios con capa gratuita.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Estado
 
-## Features
+| Fase | Contenido | Estado |
+|---|---|---|
+| 1 | Estructura, login y perfil con nivel | ✅ |
+| 2 | Chat con IA por texto (Groq y Gemini, con respaldo automático) | ✅ |
+| 3 | Voz: dictado, escuchar respuestas y lectura automática (Web Speech API) | ✅ |
+| 4 | Temas guiados (10 temas con nivel mínimo) y conversación libre | ✅ |
+| 5 | 25 lecciones (ejercicios + escritura corregida por IA) y página de progreso | ✅ |
+| 6 | PWA instalable (Serwist) y despliegue en Vercel | 🧪 en prueba |
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+## Puesta en marcha (Windows / PowerShell)
 
-## Demo
+1. Crea un proyecto gratis en [supabase.com](https://supabase.com).
+2. En Supabase → **SQL Editor**, ejecuta en orden los archivos de `supabase/migrations/` (`0001_profiles.sql` a `0004_lessons.sql`) y después `supabase/seed.sql` (10 temas y 25 lecciones; se puede volver a ejecutar sin duplicar).
+3. En Supabase → **Authentication → URL Configuration**: *Site URL* = `http://localhost:3000` y agrega `http://localhost:3000/**` en *Redirect URLs*.
+4. Copia las variables de entorno y complétalas con *Project Settings → API* (URL y clave publicable):
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
-
-## Deploy to Vercel
-
-Vercel deployment will guide you through creating a Supabase account and project.
-
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
-
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
+   ```powershell
+   Copy-Item .env.example .env.local
+   notepad .env.local
    ```
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+   Para el chat agrega al menos una clave de IA (gratis): `GEMINI_API_KEY` ([Google AI Studio](https://aistudio.google.com/apikey)) y, como respaldo, `GROQ_API_KEY` ([Groq](https://console.groq.com/keys)). `AI_PROVIDER` fija el orden (por ejemplo `groq,gemini`); si el primero falla o está saturado, la app usa el siguiente. `DAILY_MESSAGE_LIMIT` fija los mensajes por usuaria al día (30 por defecto).
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+5. Instala y arranca:
 
-3. Use `cd` to change into the app's directory
-
-   ```bash
-   cd with-supabase-app
-   ```
-
-4. Rename `.env.example` to `.env.local` and update the following:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-```
-
-> [!NOTE]
-> This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-> Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-> See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
-
-Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
-
-5. You can now run the Next.js local development server:
-
-   ```bash
+   ```powershell
+   npm install
    npm run dev
    ```
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+6. Abre <http://localhost:3000>.
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+> **Voz:** el dictado usa el reconocimiento de voz del navegador y funciona mejor en **Chrome o Edge** (Firefox no lo trae). La primera vez el navegador pide permiso para usar el micrófono. Escuchar las respuestas funciona en todos los navegadores modernos, con las voces en inglés instaladas en el dispositivo.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+## App instalable (PWA)
 
-## Feedback and issues
+- `app/manifest.ts`: nombre, íconos (`public/icons/`), colores y `display: standalone`.
+- Service worker con [Serwist](https://serwist.pages.dev): `app/sw.ts` (se sirve en `/serwist/sw.js`). Guarda la app y las páginas visitadas (por ejemplo, las lecciones) para abrirlas sin internet; la IA y Supabase nunca se guardan. En desarrollo está desactivado: para probarlo usa `npm run build` y `npm run start`.
+- `/~offline`: página cuando no hay conexión. `/instalar`: guía para Android, iPhone y computador. En Inicio aparece la tarjeta "Instala English Buddy".
+- Al cerrar sesión se borran las páginas guardadas en el equipo.
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+## Despliegue en Vercel
 
-## More Supabase examples
+1. Sube el repositorio a GitHub e impórtalo en [vercel.com/new](https://vercel.com/new) (framework: Next.js, sin cambios en build).
+2. En *Settings → Environment Variables* agrega las mismas variables de `.env.local`: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `AI_PROVIDER`, `DAILY_MESSAGE_LIMIT` (y opcionalmente `GROQ_MODEL`, `GEMINI_MODEL`). Luego *Redeploy*.
+3. En Supabase → **Authentication → URL Configuration**: *Site URL* = tu dominio de Vercel (por ejemplo `https://english-buddy.vercel.app`) y agrega `https://english-buddy.vercel.app/**` en *Redirect URLs* (deja también `http://localhost:3000/**` para desarrollo).
+4. Abre la app en el celular y prueba instalarla.
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+> Durante el desarrollo *Confirm email* está **desactivado** (Supabase → Authentication → Sign In / Providers). Motivos: el correo integrado de Supabase permite muy pocos envíos por hora, y los antivirus de correo (Outlook, correos universitarios) abren el enlace antes que la usuaria y lo dejan vencido (`otp_expired`).
+>
+> **Pendiente para la Fase 6:** configurar un SMTP gratuito (por ejemplo Resend), volver a activar *Confirm email* y usar una página de confirmación con botón, para que el antivirus no gaste el enlace.
+
+## Estructura
+
+```
+app/
+  (app)/            páginas con sesión: inicio, temas, libre, chat/[id], lecciones, progreso
+                    (temas/ y libre/ tienen sus server actions para abrir conversaciones)
+  api/chat          responde con la IA, guarda mensajes y aplica el límite diario
+  api/translate     traduce la última respuesta (y la guarda)
+  api/lesson-writing  la IA califica (1-10) el ejercicio de escritura de una lección
+  login/            inicio de sesión
+  auth/             registro, confirmación de correo, recuperar contraseña
+components/         UI (shadcn/ui) y navegación
+lib/
+  supabase/         clientes de Supabase (navegador, servidor, proxy)
+  ai.ts             capa de IA (Gemini / Groq con respaldo automático)
+  tutor.ts          personalidad de la agente (system prompt) y validación del JSON
+  chat.ts           tipos y límites del chat
+  speech.ts         voz: dictado (SpeechRecognition) y lectura (SpeechSynthesis)
+  lessons.ts        tipos de ejercicios y corrección automática (en el servidor)
+  progress.ts       totales de progreso
+  i18n.ts           textos de la interfaz (español primero)
+  levels.ts         niveles A1–C1
+supabase/migrations SQL de la base de datos
+supabase/seed.sql   datos iniciales (temas guiados y lecciones)
+proxy.ts            protege las rutas: sin sesión → /login
+```
+
+## Créditos y licencias
+
+- Plantilla base: [Next.js + Supabase Starter](https://github.com/vercel/next.js/tree/canary/examples/with-supabase) de Vercel — licencia MIT.
+- Componentes de interfaz: [shadcn/ui](https://github.com/shadcn-ui/ui) — licencia MIT.
+- Íconos: [Lucide](https://github.com/lucide-icons/lucide) — licencia ISC.
+- PWA / service worker: [Serwist](https://github.com/serwist/serwist) — licencia MIT.

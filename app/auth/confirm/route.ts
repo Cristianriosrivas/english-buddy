@@ -7,7 +7,28 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = searchParams.get("next") ?? "/";
+  const code = searchParams.get("code");
+  const rawNext = searchParams.get("next") ?? "/";
+  // Solo rutas internas, para evitar redirecciones a otros sitios
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
+
+  // Supabase rechazó el enlace antes de llegar aquí (vencido o ya usado)
+  const errorCode = searchParams.get("error_code");
+  if (errorCode) {
+    const message =
+      errorCode === "otp_expired"
+        ? "El enlace venció o ya fue usado. Intenta iniciar sesión; si no puedes, regístrate de nuevo para recibir otro."
+        : "No pudimos validar el enlace del correo.";
+    redirect(`/auth/error?error=${encodeURIComponent(message)}`);
+  }
+
+  // Plantilla de correo por defecto de Supabase (flujo PKCE): llega ?code=
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) redirect(next);
+    redirect(`/auth/error?error=${encodeURIComponent(error.message)}`);
+  }
 
   if (token_hash && type) {
     const supabase = await createClient();

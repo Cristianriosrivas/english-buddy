@@ -1,0 +1,192 @@
+-- Datos iniciales. Se puede ejecutar varias veces: actualiza lo que ya existe.
+-- Requiere las migraciones 0001 a 0004.
+
+-- 10 temas guiados (fase 4)
+insert into public.topics (id, name, description, min_level, emoji, scenario, opener, sort_order) values
+('daily-routine', 'Rutina diaria', 'Tu día a día: a qué hora te levantas, qué haces y cómo descansas.', 'A1', '⏰',
+ $$Talk about the learner's daily routine: mornings, meals, work or study, evenings and how they relax. Share bits of your own routine too.$$,
+ $$Hi {name}! ☀️ Let's talk about your day. What time do you usually wake up?$$, 1),
+('family', 'Familia y amigos', 'Las personas importantes de tu vida y lo que hacen juntos.', 'A1', '👪',
+ $$Talk about the learner's family and friends: who they are, what they are like and what they do together.$$,
+ $$Hi {name}! 😊 Let's talk about the people in your life. Do you have a big family or a small one?$$, 2),
+('food', 'Comida y restaurantes', 'Platos favoritos, cocinar en casa y pedir en un restaurante.', 'A1', '🍽️',
+ $$Talk about food: favorite dishes, cooking at home, eating out and ordering at restaurants. Use useful restaurant phrases naturally.$$,
+ $$Hi {name}! 🍕 I'm so hungry right now. What's your favorite food?$$, 3),
+('shopping', 'Compras', 'Ropa, mercado, precios y compras por internet.', 'A1', '🛍️',
+ $$Talk about shopping: clothes, groceries, prices, markets, malls and online shopping.$$,
+ $$Hi {name}! 🛍️ I just bought new shoes. Do you like shopping, or do you think it's boring?$$, 4),
+('weekend', 'Fin de semana y planes', 'Qué hiciste el fin de semana y qué planes tienes.', 'A1', '🎉',
+ $$Talk about weekends and free time: what the learner did last weekend and their plans for the next one. Good practice for past and future tenses.$$,
+ $$Hi {name}! 🎉 I love weekends. What did you do last weekend?$$, 5),
+('travel', 'Viajes', 'Lugares que conoces, viajes soñados, aeropuertos y hoteles.', 'A2', '✈️',
+ $$Talk about travel: places the learner has visited, dream destinations, airports, hotels and travel stories. Use useful travel phrases naturally.$$,
+ $$Hi {name}! ✈️ I love traveling. What's the best place you have ever visited?$$, 6),
+('health', 'Salud y bienestar', 'Ejercicio, sueño, alimentación y cómo describir síntomas.', 'A2', '🩺',
+ $$Talk about health and well-being: exercise, sleep, healthy food, stress and how to describe common symptoms. Never give medical advice.$$,
+ $$Hi {name}! 🏃 I'm trying to exercise more this month. Do you do any sports or exercise?$$, 7),
+('work', 'Trabajo y estudios', 'Tu trabajo o carrera, tus compañeros y tus metas.', 'A2', '💼',
+ $$Talk about work and studies: the learner's job or studies, coworkers or classmates, a typical day and future goals.$$,
+ $$Hi {name}! 💼 Tell me a little about yourself. Do you work, study, or both?$$, 8),
+('technology', 'Tecnología y redes sociales', 'Apps, redes sociales, el celular y la inteligencia artificial.', 'B1', '📱',
+ $$Talk about technology: phones, apps, social media habits, video games and artificial intelligence. Ask for the learner's opinions and reasons.$$,
+ $$Hi {name}! 📱 I think I spend too much time on my phone. How many hours a day do you use yours?$$, 9),
+('environment', 'Medio ambiente', 'Cambio climático, reciclaje y cómo cuidar el planeta.', 'B2', '🌍',
+ $$Discuss the environment: climate change, recycling, pollution, sustainable habits and what governments and people can do. Encourage the learner to give and support opinions.$$,
+ $$Hi {name}! 🌍 I've been reading a lot about climate change lately. Do you think people in your city care about the environment?$$, 10)
+on conflict (id) do update set
+  name = excluded.name,
+  description = excluded.description,
+  min_level = excluded.min_level,
+  emoji = excluded.emoji,
+  scenario = excluded.scenario,
+  opener = excluded.opener,
+  sort_order = excluded.sort_order;
+
+-- Lecciones (fase 5): 5 por nivel. Ejercicios:
+--   {"type":"fill","prompt":"... ___ ...","answers":["respuesta", "otra aceptada"]}
+--   {"type":"choice","prompt":"...","options":["a","b","c"],"answer": índice de la correcta}
+
+-- A1
+insert into public.lessons (id, level, kind, title, explanation, examples, exercises, writing_prompt, sort_order) values
+('a1-to-be', 'A1', 'grammar', 'El verbo to be: am, is, are',
+ $$To be significa ser o estar. Se conjuga así: I am; you, we, they are; he, she, it is. En la conversación se usan contracciones: I'm, you're, she's. Para negar se agrega not (I'm not, he isn't) y para preguntar se invierte el orden: Are you tired?$$,
+ $$[{"en":"I'm a student.","es":"Soy estudiante."},{"en":"She is at home.","es":"Ella está en casa."},{"en":"Are they from Colombia?","es":"¿Ellos son de Colombia?"}]$$,
+ $$[{"type":"fill","prompt":"I ___ 25 years old.","answers":["am"]},{"type":"fill","prompt":"My brother ___ a doctor.","answers":["is"]},{"type":"choice","prompt":"We ___ friends.","options":["is","am","are"],"answer":2},{"type":"choice","prompt":"___ you happy?","options":["Is","Are","Am"],"answer":1},{"type":"fill","prompt":"It ___ cold today. (negativo)","answers":["isn't","is not"]}]$$,
+ $$Escribe 3 o 4 frases para presentarte: tu nombre, tu edad, de dónde eres y cómo estás hoy.$$, 1),
+('a1-present-simple', 'A1', 'grammar', 'Presente simple: rutinas y hábitos',
+ $$Usamos el presente simple para rutinas, hábitos y verdades generales. Con he, she e it el verbo lleva -s o -es (she works, he watches). Para negar y preguntar usamos do o does + el verbo sin -s: I don't like coffee, Does she work here?$$,
+ $$[{"en":"I wake up at 6 every day.","es":"Me levanto a las 6 todos los días."},{"en":"He watches TV at night.","es":"Él ve televisión en la noche."},{"en":"Do you speak English?","es":"¿Hablas inglés?"}]$$,
+ $$[{"type":"fill","prompt":"She ___ (work) in a hospital.","answers":["works"]},{"type":"fill","prompt":"They ___ (live) in Bogotá.","answers":["live"]},{"type":"choice","prompt":"He ___ like fish.","options":["don't","doesn't","isn't"],"answer":1},{"type":"choice","prompt":"___ you play soccer?","options":["Do","Does","Are"],"answer":0},{"type":"fill","prompt":"My mom ___ (watch) the news every morning.","answers":["watches"]}]$$,
+ $$Describe tu rutina de un día normal en 4 o 5 frases: por la mañana, por la tarde y por la noche.$$, 2),
+('a1-articles', 'A1', 'grammar', 'Artículos: a, an y the',
+ $$A y an significan un o una y se usan con cosas contables en singular. Usa an antes de sonido vocal (an apple, an hour) y a antes de sonido consonante (a car, a university). The equivale a el, la, los, las: se usa cuando ya sabemos de qué cosa hablamos.$$,
+ $$[{"en":"I have a dog and a cat.","es":"Tengo un perro y un gato."},{"en":"She eats an apple every day.","es":"Ella come una manzana todos los días."},{"en":"The dog is very big.","es":"El perro es muy grande."}]$$,
+ $$[{"type":"choice","prompt":"I need ___ umbrella.","options":["a","an","the"],"answer":1},{"type":"choice","prompt":"He is ___ teacher.","options":["a","an","the"],"answer":0},{"type":"fill","prompt":"Can you close ___ door, please?","answers":["the"]},{"type":"choice","prompt":"It takes ___ hour to get there.","options":["a","an"],"answer":1},{"type":"fill","prompt":"I bought ___ new phone yesterday.","answers":["a"]}]$$,
+ $$Describe tu habitación en 3 o 4 frases usando a, an y the (por ejemplo: There is a bed next to the window).$$, 3),
+('a1-numbers-time', 'A1', 'vocabulary', 'Números y la hora',
+ $$Para decir la hora usamos It's + hora: It's seven o'clock (7:00), It's half past seven (7:30), It's a quarter to eight (7:45). Para preguntar: What time is it? Cuidado con los números que se confunden: thirteen (13) y thirty (30), fifteen (15) y fifty (50).$$,
+ $$[{"en":"What time is it? It's ten o'clock.","es":"¿Qué hora es? Son las diez."},{"en":"The class starts at half past eight.","es":"La clase empieza a las ocho y media."},{"en":"I have fifteen cousins.","es":"Tengo quince primos."}]$$,
+ $$[{"type":"choice","prompt":"7:30 = It's half ___ seven.","options":["to","past","on"],"answer":1},{"type":"fill","prompt":"What ___ is it?","answers":["time"]},{"type":"choice","prompt":"50 =","options":["fifteen","fifty","five"],"answer":1},{"type":"fill","prompt":"9:00 = It's nine ___.","answers":["o'clock","oclock"]},{"type":"choice","prompt":"8:45 = It's a quarter ___ nine.","options":["past","to","at"],"answer":1}]$$,
+ $$Escribe 4 frases sobre tu horario: a qué hora te levantas, comes, estudias o trabajas y te acuestas.$$, 4),
+('a1-family', 'A1', 'vocabulary', 'La familia',
+ $$Palabras clave: parents (padres), mother y father, brother (hermano), sister (hermana), grandparents (abuelos), aunt (tía), uncle (tío) y cousin (primo o prima). Para decir de quién es algo usa 's: My sister's name is Ana (el nombre de mi hermana es Ana).$$,
+ $$[{"en":"I have two brothers and one sister.","es":"Tengo dos hermanos y una hermana."},{"en":"My uncle lives in Cali.","es":"Mi tío vive en Cali."},{"en":"My mother's name is Laura.","es":"Mi mamá se llama Laura."}]$$,
+ $$[{"type":"fill","prompt":"My father's brother is my ___.","answers":["uncle"]},{"type":"fill","prompt":"My mother's sister is my ___.","answers":["aunt"]},{"type":"choice","prompt":"The children of my aunt are my ___.","options":["cousins","nephews","brothers"],"answer":0},{"type":"choice","prompt":"My mother and my father are my ___.","options":["parents","relatives","grandparents"],"answer":0},{"type":"fill","prompt":"My grandmother ___ (be) 80 years old.","answers":["is"]}]$$,
+ $$Describe a tu familia en 4 o 5 frases: quiénes son, cómo se llaman y qué hacen.$$, 5)
+on conflict (id) do update set level = excluded.level, kind = excluded.kind, title = excluded.title, explanation = excluded.explanation, examples = excluded.examples, exercises = excluded.exercises, writing_prompt = excluded.writing_prompt, sort_order = excluded.sort_order;
+
+-- A2
+insert into public.lessons (id, level, kind, title, explanation, examples, exercises, writing_prompt, sort_order) values
+('a2-past-simple', 'A2', 'grammar', 'Pasado simple',
+ $$El pasado simple cuenta acciones terminadas. Los verbos regulares terminan en -ed (worked, played) y los irregulares cambian (go: went, eat: ate, see: saw). Para negar y preguntar usamos did + el verbo en presente: I didn't go, Did you see it?$$,
+ $$[{"en":"I visited my grandma last weekend.","es":"Visité a mi abuela el fin de semana pasado."},{"en":"We went to the beach in December.","es":"Fuimos a la playa en diciembre."},{"en":"Did you eat breakfast?","es":"¿Desayunaste?"}]$$,
+ $$[{"type":"fill","prompt":"Yesterday I ___ (go) to the supermarket.","answers":["went"]},{"type":"fill","prompt":"She ___ (study) for three hours.","answers":["studied"]},{"type":"choice","prompt":"They didn't ___ the movie.","options":["liked","like","likes"],"answer":1},{"type":"fill","prompt":"We ___ (eat) pizza last night.","answers":["ate"]},{"type":"choice","prompt":"___ you call your mom?","options":["Did","Do","Was"],"answer":0}]$$,
+ $$Cuenta en 4 o 5 frases qué hiciste el fin de semana pasado.$$, 1),
+('a2-present-continuous', 'A2', 'grammar', 'Presente continuo',
+ $$El presente continuo describe lo que pasa ahora o en estos días: am, is o are + verbo con -ing. Ojo con la ortografía: make pasa a making y run a running. Los verbos de estado como like, know o want normalmente no se usan en continuo.$$,
+ $$[{"en":"I'm reading a great book.","es":"Estoy leyendo un libro muy bueno."},{"en":"She's working from home this week.","es":"Ella está trabajando desde casa esta semana."},{"en":"What are you doing?","es":"¿Qué estás haciendo?"}]$$,
+ $$[{"type":"fill","prompt":"Look! It ___ (rain).","answers":["is raining","'s raining"]},{"type":"fill","prompt":"They ___ (play) video games right now.","answers":["are playing","'re playing"]},{"type":"choice","prompt":"I ___ to music now.","options":["listen","am listening","listening"],"answer":1},{"type":"fill","prompt":"She is ___ (run) in the park.","answers":["running"]},{"type":"choice","prompt":"Choose the correct sentence:","options":["I am knowing the answer.","I know the answer.","I knowing the answer."],"answer":1}]$$,
+ $$Imagina que miras por la ventana: describe en 4 frases qué está haciendo la gente ahora mismo.$$, 2),
+('a2-comparatives', 'A2', 'grammar', 'Comparativos y superlativos',
+ $$Con adjetivos cortos agregamos -er para comparar y the + -est para el superlativo: tall, taller, the tallest. Con adjetivos largos usamos more y the most: more expensive, the most expensive. Hay irregulares: good, better, the best y bad, worse, the worst.$$,
+ $$[{"en":"My city is bigger than yours.","es":"Mi ciudad es más grande que la tuya."},{"en":"This is the most beautiful beach.","es":"Esta es la playa más hermosa."},{"en":"Today is better than yesterday.","es":"Hoy está mejor que ayer."}]$$,
+ $$[{"type":"fill","prompt":"A car is ___ (fast) than a bike.","answers":["faster"]},{"type":"fill","prompt":"This is the ___ (good) pizza in town.","answers":["best"]},{"type":"choice","prompt":"Gold is ___ than silver.","options":["expensiver","more expensive","most expensive"],"answer":1},{"type":"fill","prompt":"Mount Everest is the ___ (high) mountain in the world.","answers":["highest"]},{"type":"choice","prompt":"My cold is ___ today than yesterday.","options":["bad","worse","worst"],"answer":1}]$$,
+ $$Compara dos ciudades o lugares que conozcas en 4 frases (más grande, más barato, el mejor...).$$, 3),
+('a2-going-to', 'A2', 'grammar', 'Futuro con going to',
+ $$Usamos be going to + verbo para planes e intenciones, y para predicciones con evidencia: Look at those clouds, it's going to rain. Al hablar es muy común decir gonna, pero al escribir usa going to.$$,
+ $$[{"en":"I'm going to visit my cousins next month.","es":"Voy a visitar a mis primos el próximo mes."},{"en":"Are you going to study tonight?","es":"¿Vas a estudiar esta noche?"},{"en":"It's going to be a great day.","es":"Va a ser un gran día."}]$$,
+ $$[{"type":"fill","prompt":"I ___ going to buy a new laptop.","answers":["am"]},{"type":"fill","prompt":"She is going ___ travel to Peru.","answers":["to"]},{"type":"choice","prompt":"___ they going to come to the party?","options":["Do","Are","Is"],"answer":1},{"type":"fill","prompt":"We ___ going to work tomorrow. (negativo)","answers":["aren't","are not"]},{"type":"choice","prompt":"Look at the sky! It ___ rain.","options":["is going to","goes to","going to"],"answer":0}]$$,
+ $$Escribe 4 o 5 frases sobre tus planes para las próximas vacaciones usando going to.$$, 4),
+('a2-food', 'A2', 'vocabulary', 'Comida y restaurante',
+ $$Frases útiles en un restaurante: Can I see the menu, please? (¿me trae la carta?), I'd like the chicken (quisiera el pollo) y Could we have the bill, please? (¿nos trae la cuenta?). Para pedir es más amable decir I'd like que I want.$$,
+ $$[{"en":"A table for two, please.","es":"Una mesa para dos, por favor."},{"en":"I'd like a glass of water.","es":"Quisiera un vaso de agua."},{"en":"Can we have the bill, please?","es":"¿Nos trae la cuenta, por favor?"}]$$,
+ $$[{"type":"fill","prompt":"Can I see the ___, please?","answers":["menu"]},{"type":"choice","prompt":"The most polite way to order:","options":["I want soup.","Give me soup.","I'd like the soup, please."],"answer":2},{"type":"fill","prompt":"Could we have the ___, please? We want to pay.","answers":["bill","check"]},{"type":"choice","prompt":"Breakfast, lunch and ___","options":["dinner","diner","dessert"],"answer":0},{"type":"fill","prompt":"I'm vegetarian, so I don't eat ___.","answers":["meat"]}]$$,
+ $$Escribe un diálogo corto (4 a 6 líneas) en el que pides comida en un restaurante.$$, 5)
+on conflict (id) do update set level = excluded.level, kind = excluded.kind, title = excluded.title, explanation = excluded.explanation, examples = excluded.examples, exercises = excluded.exercises, writing_prompt = excluded.writing_prompt, sort_order = excluded.sort_order;
+
+-- B1
+insert into public.lessons (id, level, kind, title, explanation, examples, exercises, writing_prompt, sort_order) values
+('b1-present-perfect', 'B1', 'grammar', 'Presente perfecto',
+ $$El presente perfecto (have o has + participio) conecta el pasado con el presente: experiencias (I've been to Mexico), acciones recientes (I've just finished) y situaciones que continúan (I've lived here for five years). Si dices cuándo pasó (yesterday, in 2020), usa el pasado simple.$$,
+ $$[{"en":"Have you ever tried sushi?","es":"¿Alguna vez has probado el sushi?"},{"en":"She has worked here since 2019.","es":"Ella trabaja aquí desde 2019."},{"en":"I've already seen that movie.","es":"Ya vi esa película."}]$$,
+ $$[{"type":"fill","prompt":"I have never ___ (be) to Europe.","answers":["been"]},{"type":"choice","prompt":"She ___ her keys. She can't open the door.","options":["lost","has lost","have lost"],"answer":1},{"type":"choice","prompt":"I ___ him yesterday.","options":["have seen","saw","seen"],"answer":1},{"type":"fill","prompt":"We have lived here ___ ten years.","answers":["for"]},{"type":"fill","prompt":"Have you ___ (finish) your homework yet?","answers":["finished"]}]$$,
+ $$Escribe 4 o 5 frases sobre experiencias que has tenido (o que nunca has tenido) usando el presente perfecto.$$, 1),
+('b1-first-conditional', 'B1', 'grammar', 'Primer condicional',
+ $$El primer condicional habla de situaciones posibles en el futuro: if + presente simple, will + verbo. If it rains, I'll stay home. Ojo: después de if no se usa will (no digas if it will rain).$$,
+ $$[{"en":"If you study, you'll pass the exam.","es":"Si estudias, pasarás el examen."},{"en":"I'll call you if I have time.","es":"Te llamaré si tengo tiempo."},{"en":"What will you do if you lose your job?","es":"¿Qué harás si pierdes tu trabajo?"}]$$,
+ $$[{"type":"fill","prompt":"If it ___ (rain) tomorrow, we will stay home.","answers":["rains"]},{"type":"choice","prompt":"If she calls, I ___ her the news.","options":["tell","will tell","told"],"answer":1},{"type":"fill","prompt":"If you don't hurry, you ___ miss the bus.","answers":["will"]},{"type":"choice","prompt":"Choose the correct sentence:","options":["If I will see him, I'll tell him.","If I see him, I'll tell him.","If I saw him, I'll tell him."],"answer":1},{"type":"fill","prompt":"I'll buy a car if I ___ (get) the job.","answers":["get"]}]$$,
+ $$Escribe 4 frases sobre qué harás si pasan ciertas cosas este año (If I..., I will...).$$, 2),
+('b1-modals', 'B1', 'grammar', 'Consejos y obligaciones: should, must, have to',
+ $$Should da consejos (You should sleep more). Must y have to expresan obligación: must suele ser algo que siente quien habla y have to una regla externa. Cuidado: mustn't significa que está prohibido, pero don't have to significa que no es necesario.$$,
+ $$[{"en":"You should drink more water.","es":"Deberías tomar más agua."},{"en":"I have to wear a uniform at work.","es":"Tengo que usar uniforme en el trabajo."},{"en":"You mustn't smoke here.","es":"No se puede fumar aquí."}]$$,
+ $$[{"type":"choice","prompt":"You look tired. You ___ go to bed early.","options":["should","mustn't","don't have to"],"answer":0},{"type":"choice","prompt":"It's Sunday, so I ___ get up early.","options":["mustn't","don't have to","shouldn't to"],"answer":1},{"type":"fill","prompt":"Students ___ to wear a uniform at my school.","answers":["have"]},{"type":"choice","prompt":"You ___ use your phone during the exam. It's forbidden.","options":["don't have to","mustn't","should"],"answer":1},{"type":"fill","prompt":"She ___ to work on Saturdays. (have)","answers":["has"]}]$$,
+ $$Escribe 4 o 5 consejos para alguien que quiere aprender inglés usando should, must y have to.$$, 3),
+('b1-phrasal-verbs', 'B1', 'vocabulary', 'Phrasal verbs comunes',
+ $$Un phrasal verb es un verbo + una partícula que cambia su significado: get up (levantarse), look for (buscar), give up (rendirse o dejar algo), find out (descubrir) y turn on o turn off (encender o apagar). Son muy comunes en el inglés hablado, así que apréndelos en frases completas.$$,
+ $$[{"en":"I get up at 7 every day.","es":"Me levanto a las 7 todos los días."},{"en":"I'm looking for my keys.","es":"Estoy buscando mis llaves."},{"en":"Don't give up!","es":"¡No te rindas!"}]$$,
+ $$[{"type":"choice","prompt":"Can you ___ the lights? It's dark.","options":["turn on","turn off","give up"],"answer":0},{"type":"fill","prompt":"I'm looking ___ my glasses. Have you seen them?","answers":["for"]},{"type":"choice","prompt":"She ___ smoking last year.","options":["gave up","found out","got up"],"answer":0},{"type":"fill","prompt":"I need to find ___ what time the train leaves.","answers":["out"]},{"type":"choice","prompt":"What time do you ___ in the morning?","options":["get up","look for","turn off"],"answer":0}]$$,
+ $$Escribe 4 o 5 frases sobre tu día usando al menos tres phrasal verbs (get up, look for, turn off...).$$, 4),
+('b1-travel', 'B1', 'vocabulary', 'Viajes y aeropuerto',
+ $$Vocabulario útil para viajar: boarding pass (pase de abordar), gate (puerta de embarque), luggage (equipaje), carry-on (equipaje de mano), delayed (retrasado) y check in (registrarse en el aeropuerto o el hotel). Trip es un viaje concreto; travel es el verbo o la actividad de viajar.$$,
+ $$[{"en":"Where is gate 12?","es":"¿Dónde está la puerta 12?"},{"en":"Our flight was delayed for two hours.","es":"Nuestro vuelo se retrasó dos horas."},{"en":"I'd like to check in, please.","es":"Quisiera registrarme, por favor."}]$$,
+ $$[{"type":"fill","prompt":"You need your passport and your ___ pass to get on the plane.","answers":["boarding"]},{"type":"choice","prompt":"Your flight leaves from ___ 7.","options":["door","gate","port"],"answer":1},{"type":"choice","prompt":"We had a great ___ to Cartagena.","options":["travel","trip","travelling"],"answer":1},{"type":"fill","prompt":"The flight is ___ because of the storm. It will leave late.","answers":["delayed"]},{"type":"choice","prompt":"A small bag you take on the plane is a ___.","options":["carry-on","baggage claim","check-in"],"answer":0}]$$,
+ $$Cuenta en 4 o 5 frases un viaje que hiciste o que te gustaría hacer, usando vocabulario de viajes.$$, 5)
+on conflict (id) do update set level = excluded.level, kind = excluded.kind, title = excluded.title, explanation = excluded.explanation, examples = excluded.examples, exercises = excluded.exercises, writing_prompt = excluded.writing_prompt, sort_order = excluded.sort_order;
+
+-- B2
+insert into public.lessons (id, level, kind, title, explanation, examples, exercises, writing_prompt, sort_order) values
+('b2-second-conditional', 'B2', 'grammar', 'Segundo condicional',
+ $$El segundo condicional habla de situaciones imaginarias o poco probables: if + pasado simple, would + verbo. If I had more time, I would learn to play the guitar. Con el verbo to be se prefiere were para todas las personas: If I were you...$$,
+ $$[{"en":"If I won the lottery, I would travel the world.","es":"Si ganara la lotería, viajaría por el mundo."},{"en":"If I were you, I'd accept the offer.","es":"Yo en tu lugar aceptaría la oferta."},{"en":"What would you do if you could fly?","es":"¿Qué harías si pudieras volar?"}]$$,
+ $$[{"type":"fill","prompt":"If I ___ (have) a car, I would drive to work.","answers":["had"]},{"type":"choice","prompt":"If I were rich, I ___ a big house.","options":["will buy","would buy","bought"],"answer":1},{"type":"fill","prompt":"If I ___ (be) you, I would talk to her.","answers":["were","was"]},{"type":"choice","prompt":"She would be happier if she ___ less.","options":["works","worked","would work"],"answer":1},{"type":"fill","prompt":"What ___ you do if you lost your phone?","answers":["would"]}]$$,
+ $$¿Qué harías si pudieras vivir en cualquier país del mundo? Responde en 5 frases usando el segundo condicional.$$, 1),
+('b2-passive', 'B2', 'grammar', 'La voz pasiva',
+ $$La voz pasiva pone el foco en la acción o en quien la recibe, no en quien la hace: be + participio. The bridge was built in 1990. Si importa decir quién lo hizo, se agrega by: The book was written by García Márquez. Es muy común en noticias y textos formales.$$,
+ $$[{"en":"Spanish is spoken in many countries.","es":"El español se habla en muchos países."},{"en":"The package was delivered this morning.","es":"El paquete fue entregado esta mañana."},{"en":"The new hospital will be opened next year.","es":"El nuevo hospital se abrirá el próximo año."}]$$,
+ $$[{"type":"fill","prompt":"This cake was ___ (make) by my grandmother.","answers":["made"]},{"type":"choice","prompt":"English ___ all over the world.","options":["speaks","is spoken","is speaking"],"answer":1},{"type":"fill","prompt":"The emails ___ (send) yesterday.","answers":["were sent"]},{"type":"choice","prompt":"The thief ___ by the police last night.","options":["was arrested","arrested","is arresting"],"answer":0},{"type":"fill","prompt":"The results will ___ announced tomorrow.","answers":["be"]}]$$,
+ $$Describe en 4 o 5 frases cómo se prepara un plato típico de tu país usando la voz pasiva (It is cooked..., It is served...).$$, 2),
+('b2-reported-speech', 'B2', 'grammar', 'Estilo indirecto (reported speech)',
+ $$Para contar lo que alguien dijo, el verbo normalmente retrocede un tiempo: 'I am tired' pasa a She said (that) she was tired. Will pasa a would y can a could. Usa say sin persona (She said that...) y tell con persona (She told me that...).$$,
+ $$[{"en":"He said he was hungry.","es":"Él dijo que tenía hambre."},{"en":"She told me she would call later.","es":"Ella me dijo que llamaría más tarde."},{"en":"They said they couldn't come.","es":"Dijeron que no podían venir."}]$$,
+ $$[{"type":"fill","prompt":"'I am busy.' He said that he ___ busy.","answers":["was"]},{"type":"choice","prompt":"She ___ me that she was leaving.","options":["said","told","say"],"answer":1},{"type":"fill","prompt":"'I will help you.' She said she ___ help me.","answers":["would"]},{"type":"fill","prompt":"'I can swim.' He said he ___ swim.","answers":["could"]},{"type":"choice","prompt":"'We live in Lima.' They said they ___ in Lima.","options":["live","lived","are living"],"answer":1}]$$,
+ $$Cuenta en 4 o 5 frases una conversación reciente que tuviste, usando el estilo indirecto (He said..., She told me...).$$, 3),
+('b2-relative-clauses', 'B2', 'grammar', 'Oraciones de relativo',
+ $$Las oraciones de relativo dan información sobre un sustantivo: who para personas, which para cosas, where para lugares y whose para posesión. That puede reemplazar a who o which cuando la información es necesaria. Si la información es extra (va entre comas), no se puede usar that.$$,
+ $$[{"en":"The woman who lives next door is a doctor.","es":"La mujer que vive al lado es doctora."},{"en":"This is the restaurant where we met.","es":"Este es el restaurante donde nos conocimos."},{"en":"I have a friend whose father is a pilot.","es":"Tengo un amigo cuyo papá es piloto."}]$$,
+ $$[{"type":"choice","prompt":"The man ___ called you is my boss.","options":["which","who","where"],"answer":1},{"type":"fill","prompt":"This is the house ___ I grew up.","answers":["where"]},{"type":"choice","prompt":"The phone ___ I bought last week is broken.","options":["who","which","whose"],"answer":1},{"type":"fill","prompt":"That's the girl ___ brother plays in a band.","answers":["whose"]},{"type":"choice","prompt":"My sister, ___ lives in Madrid, is visiting us.","options":["that","who","which"],"answer":1}]$$,
+ $$Describe en 4 o 5 frases a personas y lugares importantes en tu vida usando who, which, where y whose.$$, 4),
+('b2-work', 'B2', 'vocabulary', 'Vocabulario de trabajo',
+ $$Vocabulario útil para hablar de trabajo: apply for a job (postularse a un empleo), hire (contratar), fire (despedir), salary (salario), deadline (fecha límite), skills (habilidades) y be in charge of (estar a cargo de). Career es tu carrera profesional; la carrera universitaria es degree o major.$$,
+ $$[{"en":"I applied for a job at a tech company.","es":"Me postulé a un trabajo en una empresa de tecnología."},{"en":"She is in charge of the marketing team.","es":"Ella está a cargo del equipo de marketing."},{"en":"We have a tight deadline this week.","es":"Tenemos una fecha límite muy ajustada esta semana."}]$$,
+ $$[{"type":"fill","prompt":"I want to apply ___ that position.","answers":["for"]},{"type":"choice","prompt":"The company decided to ___ ten new employees.","options":["hire","fire","apply"],"answer":0},{"type":"fill","prompt":"We must finish the report before the ___ on Friday.","answers":["deadline"]},{"type":"choice","prompt":"He has a five-year ___ in engineering.","options":["career","degree","work"],"answer":1},{"type":"fill","prompt":"She is in ___ of the sales department.","answers":["charge"]}]$$,
+ $$Describe tu trabajo ideal en 5 frases: qué harías, de qué estarías a cargo y qué habilidades necesitarías.$$, 5)
+on conflict (id) do update set level = excluded.level, kind = excluded.kind, title = excluded.title, explanation = excluded.explanation, examples = excluded.examples, exercises = excluded.exercises, writing_prompt = excluded.writing_prompt, sort_order = excluded.sort_order;
+
+-- C1
+insert into public.lessons (id, level, kind, title, explanation, examples, exercises, writing_prompt, sort_order) values
+('c1-third-conditional', 'C1', 'grammar', 'Tercer condicional y condicionales mixtos',
+ $$El tercer condicional imagina un pasado diferente: if + past perfect, would have + participio. If I had studied, I would have passed. Los condicionales mixtos combinan un pasado irreal con un resultado en el presente: If I had taken that job, I would be living in London now.$$,
+ $$[{"en":"If we had left earlier, we wouldn't have missed the flight.","es":"Si hubiéramos salido antes, no habríamos perdido el vuelo."},{"en":"She would have called if she had known.","es":"Ella habría llamado si lo hubiera sabido."},{"en":"If I had learned English as a child, I'd be fluent now.","es":"Si hubiera aprendido inglés de niño, hoy lo hablaría con fluidez."}]$$,
+ $$[{"type":"fill","prompt":"If I had known about the party, I would ___ gone.","answers":["have"]},{"type":"fill","prompt":"If she ___ (study) harder, she would have passed.","answers":["had studied"]},{"type":"choice","prompt":"If they hadn't missed the train, they ___ here now.","options":["would be","would have been","will be"],"answer":0},{"type":"choice","prompt":"I ___ you if I had had your number.","options":["would call","would have called","had called"],"answer":1},{"type":"fill","prompt":"If it ___ (not rain), we would have played outside.","answers":["hadn't rained","had not rained"]}]$$,
+ $$Escribe 5 frases sobre decisiones de tu pasado y cómo sería tu vida si hubieran sido diferentes, usando el tercer condicional o condicionales mixtos.$$, 1),
+('c1-inversion', 'C1', 'grammar', 'Inversión para dar énfasis',
+ $$En un registro formal o enfático se invierten el sujeto y el auxiliar después de expresiones negativas o restrictivas: Never have I seen such a view. Not only did she win, but she also broke the record. Hardly had we arrived when it started raining. Es típico de textos escritos y discursos.$$,
+ $$[{"en":"Never have I felt so proud.","es":"Nunca me había sentido tan orgulloso."},{"en":"Not only is it cheap, but it's also delicious.","es":"No solo es barato, sino que también es delicioso."},{"en":"Rarely do we see such talent.","es":"Pocas veces vemos tanto talento."}]$$,
+ $$[{"type":"choice","prompt":"Never ___ such a beautiful sunset.","options":["I have seen","have I seen","I saw"],"answer":1},{"type":"fill","prompt":"Not only ___ she sing, but she also plays the piano.","answers":["does"]},{"type":"choice","prompt":"Hardly ___ arrived when the meeting started.","options":["we had","had we","did we"],"answer":1},{"type":"fill","prompt":"Rarely ___ we eat out these days.","answers":["do"]},{"type":"choice","prompt":"Under no circumstances ___ open this door.","options":["you should","should you","you must"],"answer":1}]$$,
+ $$Escribe un párrafo corto (4 o 5 frases) sobre una experiencia increíble usando al menos dos inversiones (Never have I..., Not only...).$$, 2),
+('c1-wish', 'C1', 'grammar', 'Wish e if only',
+ $$Wish e if only expresan deseos o arrepentimientos. Para el presente usamos el pasado (I wish I had more time), para el pasado el past perfect (I wish I had studied more) y para quejarnos de lo que otra persona hace usamos would (I wish you would stop talking).$$,
+ $$[{"en":"I wish I lived closer to the sea.","es":"Ojalá viviera más cerca del mar."},{"en":"If only I had listened to you.","es":"Si tan solo te hubiera escuchado."},{"en":"I wish it would stop raining.","es":"Ojalá dejara de llover."}]$$,
+ $$[{"type":"fill","prompt":"I wish I ___ (can) speak French.","answers":["could"]},{"type":"choice","prompt":"I wish I ___ that email. It was a big mistake.","options":["didn't send","hadn't sent","wouldn't send"],"answer":1},{"type":"fill","prompt":"If only I ___ (have) more free time!","answers":["had"]},{"type":"choice","prompt":"I wish my neighbors ___ so much noise.","options":["wouldn't make","didn't made","won't make"],"answer":0},{"type":"fill","prompt":"She wishes she ___ (be) taller.","answers":["were","was"]}]$$,
+ $$Escribe 5 frases con wish o if only: cosas que te gustaría cambiar de tu presente y algo de tu pasado que harías distinto.$$, 3),
+('c1-idioms', 'C1', 'vocabulary', 'Expresiones idiomáticas',
+ $$Las expresiones idiomáticas no se entienden palabra por palabra: break the ice (romper el hielo), a piece of cake (pan comido), hit the nail on the head (dar en el clavo), once in a blue moon (muy de vez en cuando), under the weather (indispuesto) y cost an arm and a leg (costar un ojo de la cara). Úsalas con moderación para sonar natural.$$,
+ $$[{"en":"The exam was a piece of cake.","es":"El examen fue pan comido."},{"en":"I only go to the cinema once in a blue moon.","es":"Voy al cine muy de vez en cuando."},{"en":"That jacket cost an arm and a leg.","es":"Esa chaqueta costó un ojo de la cara."}]$$,
+ $$[{"type":"choice","prompt":"The test was very easy. It was a ___.","options":["piece of cake","blue moon","broken ice"],"answer":0},{"type":"fill","prompt":"I'm feeling a bit under the ___ today, so I'll stay home.","answers":["weather"]},{"type":"choice","prompt":"You're absolutely right. You hit the nail on the ___.","options":["finger","head","hand"],"answer":1},{"type":"fill","prompt":"He told a joke to break the ___ at the meeting.","answers":["ice"]},{"type":"choice","prompt":"A new car costs an arm and a ___.","options":["foot","leg","hand"],"answer":1}]$$,
+ $$Escribe una historia corta (5 frases) que use al menos tres expresiones idiomáticas de esta lección.$$, 4),
+('c1-linking', 'C1', 'vocabulary', 'Conectores avanzados',
+ $$Los conectores dan cohesión a un texto: however y nevertheless (sin embargo); although y even though (aunque) unen dos ideas en una oración; despite e in spite of van seguidos de un sustantivo o de -ing; whereas (mientras que) compara; y therefore o consequently (por lo tanto) indican consecuencia.$$,
+ $$[{"en":"Although it was raining, we went for a walk.","es":"Aunque estaba lloviendo, salimos a caminar."},{"en":"Despite being tired, she finished the project.","es":"A pesar de estar cansada, terminó el proyecto."},{"en":"The price went up; therefore, sales fell.","es":"El precio subió; por lo tanto, las ventas bajaron."}]$$,
+ $$[{"type":"choice","prompt":"___ the rain, the match continued.","options":["Although","Despite","However"],"answer":1},{"type":"fill","prompt":"___ he studied a lot, he failed the exam.","answers":["although","even though","though"]},{"type":"choice","prompt":"I like coffee, ___ my sister prefers tea.","options":["whereas","therefore","despite"],"answer":0},{"type":"choice","prompt":"The road was closed; ___, we took another route.","options":["although","therefore","despite"],"answer":1},{"type":"fill","prompt":"In spite ___ the traffic, we arrived on time.","answers":["of"]}]$$,
+ $$Escribe un párrafo (5 frases) sobre las ventajas y desventajas de trabajar desde casa, usando al menos cuatro conectores de esta lección.$$, 5)
+on conflict (id) do update set level = excluded.level, kind = excluded.kind, title = excluded.title, explanation = excluded.explanation, examples = excluded.examples, exercises = excluded.exercises, writing_prompt = excluded.writing_prompt, sort_order = excluded.sort_order;
