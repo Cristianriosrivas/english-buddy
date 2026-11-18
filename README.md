@@ -2,6 +2,8 @@
 
 Agente de IA para practicar inglés hablando y escribiendo. Hecho con Next.js (App Router), TypeScript, Tailwind CSS y Supabase, usando solo servicios con capa gratuita.
 
+**App publicada:** <https://english-buddy-six-drab.vercel.app> (se puede instalar en el celular como app).
+
 ## Estado
 
 | Fase | Contenido | Estado |
